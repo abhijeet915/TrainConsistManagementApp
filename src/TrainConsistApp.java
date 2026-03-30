@@ -1,52 +1,67 @@
 import java.util.*;
-import java.util.stream.*;
+import java.util.stream.Collectors;
 
-// GoodsBogie class
-class GoodsBogie {
-    private String type;   // Cylindrical, Rectangular, Open, Box
-    private String cargo;  // Petroleum, Coal, Grain, etc.
+// Bogie class
+class Bogie {
+    private String name;
+    private int capacity;
 
-    public GoodsBogie(String type, String cargo) {
-        this.type = type;
-        this.cargo = cargo;
+    public Bogie(String name, int capacity) {
+        this.name = name;
+        this.capacity = capacity;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getCargo() {
-        return cargo;
-    }
-
-    public void display() {
-        System.out.println(type + " Bogie carrying " + cargo);
+    public int getCapacity() {
+        return capacity;
     }
 }
 
 // Main class
 public class TrainConsistApp {
+
     public static void main(String[] args) {
 
-        // Step 1: Create list of goods bogies
-        List<GoodsBogie> goodsBogies = new ArrayList<>();
-        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        goodsBogies.add(new GoodsBogie("Rectangular", "Coal"));
-        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        goodsBogies.add(new GoodsBogie("Open", "Grain"));
+        // Step 1: Create large dataset
+        List<Bogie> bogies = new ArrayList<>();
+        for (int i = 0; i < 100000; i++) {
+            bogies.add(new Bogie("Bogie" + i, (i % 100) + 20));
+        }
 
-        // Step 2: Apply safety validation using allMatch()
-        boolean isSafe = goodsBogies.stream()
-                .allMatch(b ->
-                        !b.getType().equalsIgnoreCase("Cylindrical") ||
-                                b.getCargo().equalsIgnoreCase("Petroleum")
-                );
+        // -------------------------------
+        // Loop-based filtering
+        // -------------------------------
+        long startLoop = System.nanoTime();
 
-        // Step 3: Display result
-        System.out.println("Goods Bogies:");
-        goodsBogies.forEach(GoodsBogie::display);
+        List<Bogie> loopResult = new ArrayList<>();
+        for (Bogie b : bogies) {
+            if (b.getCapacity() > 60) {
+                loopResult.add(b);
+            }
+        }
 
-        System.out.println("\nSafety Compliance Status: " +
-                (isSafe ? "SAFE " : "UNSAFE "));
+        long endLoop = System.nanoTime();
+        long loopTime = endLoop - startLoop;
+
+        // -------------------------------
+        // Stream-based filtering
+        // -------------------------------
+        long startStream = System.nanoTime();
+
+        List<Bogie> streamResult = bogies.stream()
+                .filter(b -> b.getCapacity() > 60)
+                .collect(Collectors.toList());
+
+        long endStream = System.nanoTime();
+        long streamTime = endStream - startStream;
+
+        // -------------------------------
+        // Output results
+        // -------------------------------
+        System.out.println("Loop Result Size: " + loopResult.size());
+        System.out.println("Stream Result Size: " + streamResult.size());
+
+        System.out.println("\nExecution Time:");
+        System.out.println("Loop Time   : " + loopTime + " ns");
+        System.out.println("Stream Time : " + streamTime + " ns");
     }
 }
