@@ -1,50 +1,52 @@
-import java.util.Scanner;
-import java.util.regex.*;
+import java.util.*;
+import java.util.stream.*;
+
+// GoodsBogie class
+class GoodsBogie {
+    private String type;   // Cylindrical, Rectangular, Open, Box
+    private String cargo;  // Petroleum, Coal, Grain, etc.
+
+    public GoodsBogie(String type, String cargo) {
+        this.type = type;
+        this.cargo = cargo;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getCargo() {
+        return cargo;
+    }
+
+    public void display() {
+        System.out.println(type + " Bogie carrying " + cargo);
+    }
+}
 
 // Main class
 public class TrainConsistApp {
-
-    // Method to validate Train ID
-    public static boolean isValidTrainID(String trainId) {
-        String trainRegex = "TRN-\\d{4}";
-        Pattern pattern = Pattern.compile(trainRegex);
-        Matcher matcher = pattern.matcher(trainId);
-        return matcher.matches();
-    }
-
-    // Method to validate Cargo Code
-    public static boolean isValidCargoCode(String cargoCode) {
-        String cargoRegex = "PET-[A-Z]{2}";
-        Pattern pattern = Pattern.compile(cargoRegex);
-        Matcher matcher = pattern.matcher(cargoCode);
-        return matcher.matches();
-    }
-
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
+        // Step 1: Create list of goods bogies
+        List<GoodsBogie> goodsBogies = new ArrayList<>();
+        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
+        goodsBogies.add(new GoodsBogie("Rectangular", "Coal"));
+        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
+        goodsBogies.add(new GoodsBogie("Open", "Grain"));
 
-        // Step 1: Take user input
-        System.out.print("Enter Train ID: ");
-        String trainId = scanner.nextLine();
+        // Step 2: Apply safety validation using allMatch()
+        boolean isSafe = goodsBogies.stream()
+                .allMatch(b ->
+                        !b.getType().equalsIgnoreCase("Cylindrical") ||
+                                b.getCargo().equalsIgnoreCase("Petroleum")
+                );
 
-        System.out.print("Enter Cargo Code: ");
-        String cargoCode = scanner.nextLine();
+        // Step 3: Display result
+        System.out.println("Goods Bogies:");
+        goodsBogies.forEach(GoodsBogie::display);
 
-        // Step 2: Validate Train ID
-        if (isValidTrainID(trainId)) {
-            System.out.println("Train ID is VALID");
-        } else {
-            System.out.println("Train ID is INVALID");
-        }
-
-        // Step 3: Validate Cargo Code
-        if (isValidCargoCode(cargoCode)) {
-            System.out.println("Cargo Code is VALID");
-        } else {
-            System.out.println("Cargo Code is INVALID");
-        }
-
-        scanner.close();
+        System.out.println("\nSafety Compliance Status: " +
+                (isSafe ? "SAFE " : "UNSAFE "));
     }
 }
